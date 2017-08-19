@@ -48,7 +48,7 @@ ls '''
             
           },
           "Checkfiles": {
-            sh 'ls target/**/*.jar'
+            sh 'ls -R target'
             
           }
         )

@@ -3,22 +3,22 @@ pipeline {
     docker {
       image 'maven:3.5-jdk-8'
     }
-    
+
   }
   stages {
     stage('Test') {
-      steps {
-        parallel(
-          "Test": {
+      parallel {
+        stage('Test') {
+          steps {
             sh '''mvn test
 ls '''
-            
-          },
-          "Greeting": {
-            echo 'Hello'
-            
           }
-        )
+        }
+        stage('Greeting') {
+          steps {
+            echo 'Hello'
+          }
+        }
       }
     }
     stage('Build') {
@@ -27,31 +27,31 @@ ls '''
       }
     }
     stage('Publish Test Results') {
-      steps {
-        parallel(
-          "Publish Test Results": {
+      parallel {
+        stage('Publish Test Results') {
+          steps {
             junit(allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml')
-            
-          },
-          "Checkfiles": {
-            sh 'ls target/surefire-reports/*.xml'
-            
           }
-        )
+        }
+        stage('Checkfiles') {
+          steps {
+            sh 'ls target/surefire-reports/*.xml'
+          }
+        }
       }
     }
     stage('Upload Artifects') {
-      steps {
-        parallel(
-          "Upload Artifects": {
+      parallel {
+        stage('Upload Artifects') {
+          steps {
             archiveArtifacts(allowEmptyArchive: true, artifacts: 'target/**/*.jar')
-            
-          },
-          "Checkfiles": {
-            sh 'ls -R target'
-            
           }
-        )
+        }
+        stage('Checkfiles') {
+          steps {
+            sh 'ls -R target'
+          }
+        }
       }
     }
   }
